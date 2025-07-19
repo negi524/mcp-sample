@@ -1,0 +1,42 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python Test and Format
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  test_and_check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.13
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.13"
+    - name: Setup uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        uv --version
+    - name: Install dependencies
+      run: |
+        uv sync
+    - name: Format and test
+      run: |
+        uv run black src/ tests/
+        uv run mypy -p src
+        uv run pytest tests/
+    - name: Tag check
+      run: |
+        # タグ情報のみfetch
+        git fetch --tags
+        git tag -n
+        # pyproject.tomlからバージョン取得
+        export TAG_VERSION=$(uv version | awk '{print $2}')
+        # 取得したバージョンでタグを生成
+        git tag $TAG_VERSION

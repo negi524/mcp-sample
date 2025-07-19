@@ -1,0 +1,26 @@
+[tools]
+python = "3.13"
+
+[tasks.main]
+description = "プログラムを実行する"
+run = "uv run python src/main.py"
+
+[tasks.test]
+description = "テストを実行する"
+run = "uv run pytest tests/"
+
+[tasks.format]
+description = "ファイルのフォーマットを行う"
+run = "uv run black src/ tests/"
+
+[tasks.type-check]
+description = "プログラムの型チェックを行う"
+run = "uv run mypy -p src"
+
+[tasks.check-all]
+description = "全てまとめてチェックを行う"
+run =[
+  "mise run format",
+  "mise run type-check",
+  "mise run test"
+]
